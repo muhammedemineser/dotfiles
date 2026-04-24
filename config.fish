@@ -544,6 +544,17 @@ except FileNotFoundError:
 " $argv[1]
 end
 
+# ============================================================
+# NVIM-REMOTE — open files in outer nvim from :terminal buffer
+# ============================================================
+function nvim
+    if set -q NVIM
+        nvr --remote $argv
+    else
+        command nvim $argv
+    end
+end
+
 # Safe defaults
 alias rm='rm -i'
 alias cp='cp -iv'
