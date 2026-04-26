@@ -555,6 +555,17 @@ function nvim
     end
 end
 
+# cd/z write CWD to file on success → kitty new tab inherits location
+function cd
+    builtin cd $argv
+    and echo $PWD > /tmp/kitty_last_cwd
+end
+
+function z
+    __zoxide_z $argv
+    and echo $PWD > /tmp/kitty_last_cwd
+end
+
 # Safe defaults
 alias rm='rm -i'
 alias cp='cp -iv'
