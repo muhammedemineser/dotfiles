@@ -546,7 +546,7 @@ end
 # NVIM-REMOTE — open files in outer nvim from :terminal buffer
 # ============================================================
 function nvim
-    if set -q NVIM
+    if set -q NVIM; and test -S $NVIM
         nvr --remote $argv
     else
         command nvim $argv
@@ -570,10 +570,10 @@ end
 function __fish_edit_cmd_overlay
     set -l tmp (mktemp /tmp/fish_cmd_XXXX.fish)
     set -l sig (mktemp -u /tmp/fish_edit_sig_XXXX)
-    commandline > $tmp
+    commandline >$tmp
     mkfifo $sig
     kitten @ launch --type=overlay --title="edit cmd" sh -c "vi '$tmp'; printf x > '$sig'"
-    head -c 1 $sig > /dev/null
+    head -c 1 $sig >/dev/null
     rm -f $sig
     commandline --replace (string trim (cat $tmp))
     rm -f $tmp
