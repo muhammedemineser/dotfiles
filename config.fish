@@ -1,8 +1,6 @@
 # ============================================================
 # ENVIRONMENT
 # ============================================================
-set -x EDITOR code
-set -x VISUAL code
 set -x PAGER less
 set -x LESS '-R --mouse'
 set -x HISTSIZE 100000
@@ -558,12 +556,28 @@ end
 # cd/z write CWD to file on success → kitty new tab inherits location
 function cd
     builtin cd $argv
-    and echo $PWD > /tmp/kitty_last_cwd
+    and echo $PWD >/tmp/kitty_last_cwd
 end
 
 function z
     __zoxide_z $argv
-    and echo $PWD > /tmp/kitty_last_cwd
+    and echo $PWD >/tmp/kitty_last_cwd
+end
+
+# ============================================================
+# ALT+E — edit commandline in kitty overlay (vi)
+# ============================================================
+function __fish_edit_cmd_overlay
+    set -l tmp (mktemp /tmp/fish_cmd_XXXX.fish)
+    set -l sig (mktemp -u /tmp/fish_edit_sig_XXXX)
+    commandline > $tmp
+    mkfifo $sig
+    kitten @ launch --type=overlay --title="edit cmd" sh -c "vi '$tmp'; printf x > '$sig'"
+    head -c 1 $sig > /dev/null
+    rm -f $sig
+    commandline --replace (string trim (cat $tmp))
+    rm -f $tmp
+    commandline -f repaint
 end
 
 # Safe defaults
@@ -574,4 +588,8 @@ alias ln='ln -iv'
 bind \ch history-pager
 bind \ck history-search-backward
 bind \cj history-search-forward
+bind -e \ee
+bind \ee __fish_edit_cmd_overlay
 set -x WAYLAND_DISPLAY ""
+set -x EDITOR nvim
+set -x VISUAL vi
